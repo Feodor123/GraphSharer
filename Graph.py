@@ -29,7 +29,7 @@ class Graph:
         self.links = []
         lines = text.split('\n')
         lines = [ln for ln in lines if not ln.startswith('#') and ln != ""]
-        n = tuple(map(int, lines[0].split(' ')))[0]
+        n = tuple(map(int, [s for s in lines[0].split(' ') if s != '']))[0]
         for i in range(n):
             if i < len(positions):
                 self.nodes.append(Node(*positions[i], i))
