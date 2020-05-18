@@ -24,16 +24,18 @@ class Graph:
         self.nodes = []
         self.links = []
 
-    def from_text(self, text, positions=[]):
+    def from_text(self, text: str, positions=[]):
         self.nodes = []
         self.links = []
+        text = text.replace('\t',' ')
         lines = text.split('\n')
         lines = [ln for ln in lines if not ln.startswith('#') and ln != ""]
         try:
             n = tuple(map(int, [s for s in lines[0].split(' ') if s != '']))[0]
         except:
-            raise Exception("line 1: invalid format")
-        assert n > 0, "line 1: node quantity must be > 0"
+            raise ParsingException("line 1: invalid format")
+        if not n > 0: raise ParsingException("line 1: node quantity must be "
+                                             "> 0")
         for i in range(n):
             if i < len(positions):
                 self.nodes.append(Node(*positions[i], i))
@@ -46,14 +48,15 @@ class Graph:
                                        != '']))
                 assert len(ints) == 2 or len(ints) == 3
             except:
-                raise Exception("line {}: invalid format".format(i+1))
+                raise ParsingException("line {}: invalid format".format(i+1))
             if len(ints) == 2:
                 i1, i2 = ints
                 w = 0
             else:
                 i1, i2, w = ints
-            assert 0 < i1 <= n and 0 < i2 <= n, "Line {}:indexes must be in " \
-                                                "(0;n] range".format(i + 1)
+            if not (0 < i1 <= n and 0 < i2 <= n):
+                raise ParsingException("Line {}: indexes must be in [1;n] "
+                                       "range".format(i + 1))
             link = Link(i1 - 1, i2 - 1, w)
             self.links.append(link)
             self.nodes[i1 - 1].links.append(link)
@@ -72,3 +75,6 @@ class Graph:
                         **{"n{}y".format(i): nd.y for i, nd in enumerate(
                             self.nodes)},
                         }
+
+class ParsingException(Exception):
+    pass

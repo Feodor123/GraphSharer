@@ -121,8 +121,11 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('rebuild_graph', data => {
         graph_from_data(data);
     });
-    socket.on('error', data => {
-        alert(data.error)
+    socket.on('my_error', data => {
+        if (data.error != 'undefined')
+        {
+            alert(data.error)
+        }
     });
 });
 
@@ -138,8 +141,6 @@ function load_graph() {
         const data = JSON.parse(request.responseText);
         if (data.success) {
             graph_from_data(data);
-        } else {
-            alert(data.error);
         }
     }
     request.send();

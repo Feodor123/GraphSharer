@@ -5,7 +5,7 @@ from flask import Flask, jsonify, render_template, request
 from flask_socketio import SocketIO, emit
 import logging
 
-from Graph import Graph, Node, Link
+from Graph import Graph, Node, Link, ParsingException
 
 # the main Flask application object
 app = Flask(__name__)
@@ -18,9 +18,14 @@ logger.setLevel('INFO')
 
 graph = Graph()
 
-text = "5\n1 2\n1 3\n1 4\n1 5\n2 3\n2 4\n2 5\n3 4\n3 5\n4 5"
+n = 32
+text = "#Ну или попроще\n5\n1 2\n1 3\n1 4\n1 5\n2 3\n2 4\n2 5\n3 4\n3 5\n4 5"
+text2= '{}\n'.format(n)
+for i in range(n):
+    for j in range(i + 1, n):
+        text2 += ("{} {}\n".format(i+1,j+1))
 
-graph.from_text(text)
+graph.from_text(text2)
 
 
 @app.route('/', methods=['GET'])
@@ -56,8 +61,10 @@ def rebuild_sgraph(data):
         new_graph.from_text(data['text'])
         graph = new_graph
         emit('rebuild_graph', graph.to_dict(), broadcast=True)
-    except Exception as e:
-        emit("error", {"error": str(e)})
+    except ParsingException as e:
+        emit("my_error", {"error": str(e)})
+    except Exception:
+        pass # ничего не было, ничего не знаю
 
 @socketio.on('move_node')
 def move_node(data):
@@ -66,7 +73,7 @@ def move_node(data):
         graph.nodes[data['i']].y = data['y']
         emit('rebuild_graph', graph.to_dict(), broadcast=True, include_self=False)
     except Exception as e:
-        emit("error", {"error": str(e)})
+        pass # ничего не было, ничего не знаю
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
