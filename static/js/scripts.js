@@ -58,6 +58,13 @@ window.onload = function() {
     window.addEventListener('resize', on_reshape, false);
 }
 
+window.addEventListener("resize", resize);
+
+function resize(){
+    fix_dpi();
+    draw();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
     socket.on('connect', () => {
